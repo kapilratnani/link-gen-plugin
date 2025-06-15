@@ -457,7 +457,7 @@ function createParameterPopup(template) {
     const selection = window.getSelection();
     const selectedText = selection.toString().trim();
     
-    // If we have selected text and we're still selecting parameters
+    // Only proceed if we have non-empty text selected and we're still selecting parameters
     if (selectedText && currentParameterIndex < template.parameters.length) {
       // Check if the selection is within an editable area (like Google Docs)
       const isEditableSelection = selection.anchorNode?.parentElement?.isContentEditable || 
@@ -508,7 +508,7 @@ function createParameterPopup(template) {
   
   // Add text selection handler
   textSelectionHandler = handleTextSelection;
-  document.addEventListener('click', textSelectionHandler);
+  document.addEventListener('mouseup', textSelectionHandler);
   
   // Close button handler
   closeButton.onclick = () => {
@@ -531,7 +531,7 @@ function cleanupParameterPopup() {
 // Clean up text selection handler
 function cleanupTextSelectionHandler() {
   if (textSelectionHandler) {
-    document.removeEventListener('click', textSelectionHandler);
+    document.removeEventListener('mouseup', textSelectionHandler);
     textSelectionHandler = null;
   }
 }
