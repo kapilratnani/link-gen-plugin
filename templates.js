@@ -1,16 +1,42 @@
 // Default template
-const defaultTemplate = {
-  id: 'quark-fare-viz-prod',
-  name: 'Quark Fare Viz Prod',
-  template: 'https://fares.uberinternal.com/fares?lifecycleId={lifecycleId}&contextId={contextId}&requestId={requestId}&environment=Production',
-  parameters: ['lifecycleId', 'contextId', 'requestId']
-};
+const defaultTemplates = [
+  {
+    id: 'quark-fare-viz-prod',
+    name: 'Quark Fare Viz Prod',
+    template: 'https://fares.uberinternal.com/fares?lifecycleId={lifecycleId}&contextId={contextId}&requestId={requestId}&environment=Production',
+    parameters: ['lifecycleId', 'contextId', 'requestId']
+  },
+  {
+    id: 'quark-fare-viz-shadow',
+    name: 'Quark Fare Viz Shadow',
+    template: 'https://fares.uberinternal.com/fares?lifecycleId={lifecycleId}&contextId={contextId}&requestId={requestId}&environment=Shadow',
+    parameters: ['lifecycleId', 'contextId', 'requestId']
+  },
+  {
+    id: 'quark-fare-viz-staging',
+    name: 'Quark Fare Viz Staging',
+    template: 'https://fares.uberinternal.com/fares?lifecycleId={lifecycleId}&contextId={contextId}&requestId={requestId}&environment=Staging',
+    parameters: ['lifecycleId', 'contextId', 'requestId']
+  },
+  {
+    id: 'wayfare-fares-inspector',
+    name: 'Wayfare Fares Inspector',
+    template: 'https://fares.uberinternal.com/inspect/production/{sessionId}/{flowId}/{requestId}',
+    parameters: ['sessionId', 'flowId', 'requestId']
+  },
+  {
+    id: 'chronicle',
+    name: 'Chronicle',
+    template: 'https://chronicle.uberinternal.com/trip/{tripId}/overview',
+    parameters: ['tripId']
+  },
+];
 
 // Template management functions
 const templateManager = {
   async getTemplates() {
     const result = await chrome.storage.local.get('templates');
-    return result.templates || [defaultTemplate];
+    return result.templates || defaultTemplates;
   },
 
   async getTemplateById(id) {
