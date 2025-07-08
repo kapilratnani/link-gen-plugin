@@ -372,13 +372,23 @@
   border-bottom: 1px solid #eee;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+}
+
+.header-content {
+  flex: 1;
 }
 
 .modal-header h2 {
-  margin: 0;
+  margin: 0 0 4px 0;
   font-size: 1.25rem;
   color: #333;
+}
+
+.keyboard-hint {
+  font-size: 0.75rem;
+  color: #666;
+  font-weight: normal;
 }
 
 .modal-close {

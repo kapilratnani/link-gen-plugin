@@ -22,7 +22,10 @@ function createTemplateSelector(templates) {
   const header = document.createElement('div');
   header.className = 'modal-header';
   header.innerHTML = `
-    <h2>Link Templates</h2>
+    <div class="header-content">
+      <h2>Link Templates</h2>
+      <div class="keyboard-hint">Use ↑↓ arrows to navigate, Enter to select, Esc to close</div>
+    </div>
     <button class="modal-close" aria-label="Close">×</button>
   `;
   
