@@ -7,7 +7,7 @@ let textSelectionHandler = null;
 let modalKeyDownHandler = null;
 
 // Create and show the template selector modal
-function createTemplateSelector(templates) {
+function createTemplateSelector(templates, preSelectedText = '') {
   // Clean up any existing modal and its listeners
   cleanupModal();
   
@@ -58,7 +58,7 @@ function createTemplateSelector(templates) {
     templateItem.querySelector('.template-name').onclick = () => {
       selectedTemplate = template;
       cleanupModal();
-      createParameterPopup(template);
+      createParameterPopup(template, preSelectedText);
     };
     
     templateItem.querySelector('.edit-template').onclick = (e) => {
@@ -71,7 +71,7 @@ function createTemplateSelector(templates) {
       if (confirm(`Delete template "${template.name}"?`)) {
         templateManager.deleteTemplate(template.id).then(() => {
           const newTemplates = templates.filter(t => t.id !== template.id);
-          createTemplateSelector(newTemplates);
+          createTemplateSelector(newTemplates, '');
         });
       }
     };
@@ -141,7 +141,7 @@ function createTemplateSelector(templates) {
         const template = templates[selectedIndex];
         selectedTemplate = template;
         cleanupModal();
-        createParameterPopup(template);
+        createParameterPopup(template, preSelectedText);
         break;
         
       case 'Escape':
@@ -360,7 +360,7 @@ function showTemplateEditor(template = null) {
       }
       const templates = await templateManager.getTemplates();
       cleanupModal();
-      createTemplateSelector(templates);
+      createTemplateSelector(templates, '');
     } catch (error) {
       alert('Error saving template: ' + error.message);
     }
@@ -370,7 +370,7 @@ function showTemplateEditor(template = null) {
   cancelButton.onclick = async () => {
     const templates = await templateManager.getTemplates();
     cleanupModal();
-    createTemplateSelector(templates);
+    createTemplateSelector(templates, '');
   };
   
   // Close button handler
@@ -413,7 +413,7 @@ function positionParameterPopup() {
 }
 
 // Create parameter popup for template
-function createParameterPopup(template) {
+function createParameterPopup(template, preSelectedText = '') {
   // Clean up any existing modal and its listeners
   cleanupModal();
   
@@ -454,6 +454,38 @@ function createParameterPopup(template) {
   const paramValues = new Map();
   let currentParameterIndex = 0;
   
+  // Process the selected text
+  function processSelection(selectedText) {
+    if (currentParameterIndex < template.parameters.length) {
+      const currentParam = template.parameters[currentParameterIndex];
+      paramValues.set(currentParam, selectedText);
+      
+      // Update the UI
+      const paramElement = modalElement.querySelector(`[data-param="${currentParam}"]`);
+      paramElement.textContent = selectedText;
+      paramElement.classList.add('selected');
+      
+      // Move to next parameter
+      currentParameterIndex++;
+      
+      // If all parameters are selected, generate and open the link
+      if (currentParameterIndex >= template.parameters.length) {
+        const url = template.template.replace(/\{(\w+)\}/g, (match, param) => {
+          return encodeURIComponent(paramValues.get(param));
+        });
+        
+        window.open(url, '_blank');
+        cleanupTextSelectionHandler();
+        cleanupParameterPopup();
+      }
+    }
+  }
+  
+  // If there's pre-selected text, use it for the first parameter
+  if (preSelectedText && template.parameters.length > 0) {
+    processSelection(preSelectedText);
+  }
+  
   // Handle text selection
   function handleTextSelection(e) {
     // Get selection from the window
@@ -478,33 +510,6 @@ function createParameterPopup(template) {
       } else {
         // For regular text, process immediately
         processSelection(selectedText);
-      }
-    }
-  }
-
-  // Process the selected text
-  function processSelection(selectedText) {
-    if (currentParameterIndex < template.parameters.length) {
-      const currentParam = template.parameters[currentParameterIndex];
-      paramValues.set(currentParam, selectedText);
-      
-      // Update the UI
-      const paramElement = modalElement.querySelector(`[data-param="${currentParam}"]`);
-      paramElement.textContent = selectedText;
-      paramElement.classList.add('selected');
-      
-      // Move to next parameter
-      currentParameterIndex++;
-      
-      // If all parameters are selected, generate and open the link
-      if (currentParameterIndex >= template.parameters.length) {
-        const url = template.template.replace(/\{(\w+)\}/g, (match, param) => {
-          return encodeURIComponent(paramValues.get(param));
-        });
-        
-        window.open(url, '_blank');
-        cleanupTextSelectionHandler();
-        cleanupParameterPopup();
       }
     }
   }
@@ -542,8 +547,12 @@ function cleanupTextSelectionHandler() {
 // Listen for messages from background script
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'showTemplateSelector') {
+    // Capture any pre-selected text before showing template selector
+    const selection = window.getSelection();
+    const preSelectedText = selection.toString().trim();
+    
     templateManager.getTemplates().then(templates => {
-      createTemplateSelector(templates);
+      createTemplateSelector(templates, preSelectedText);
     });
   }
 });
