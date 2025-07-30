@@ -34,6 +34,64 @@ print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
+# Function to update version in manifest.json
+update_version() {
+    print_status "Updating version in manifest.json..."
+    
+    # Read current version from manifest.json
+    if command -v jq &> /dev/null; then
+        # Use jq if available (more reliable)
+        local current_version=$(jq -r '.version' manifest.json)
+        print_status "Current version: $current_version"
+        
+        # Parse version components (supports x.y and x.y.z format)
+        if [[ $current_version =~ ^([0-9]+)\.([0-9]+)\.?([0-9]*)$ ]]; then
+            local major=${BASH_REMATCH[1]}
+            local minor=${BASH_REMATCH[2]}
+            local patch=${BASH_REMATCH[3]:-0}  # Default to 0 if not present
+            
+            # Increment patch version
+            patch=$((patch + 1))
+            local new_version="$major.$minor.$patch"
+        else
+            print_error "Invalid version format: $current_version"
+            exit 1
+        fi
+        
+        # Update manifest.json with new version
+        jq --arg version "$new_version" '.version = $version' manifest.json > manifest.json.tmp
+        mv manifest.json.tmp manifest.json
+        
+    else
+        # Fallback to sed if jq is not available
+        local current_version=$(grep -o '"version"[[:space:]]*:[[:space:]]*"[^"]*"' manifest.json | sed 's/.*"\([^"]*\)".*/\1/')
+        print_status "Current version: $current_version"
+        
+        # Parse version components
+        if [[ $current_version =~ ^([0-9]+)\.([0-9]+)\.?([0-9]*)$ ]]; then
+            local major=${BASH_REMATCH[1]}
+            local minor=${BASH_REMATCH[2]}
+            local patch=${BASH_REMATCH[3]:-0}  # Default to 0 if not present
+            
+            # Increment patch version
+            patch=$((patch + 1))
+            local new_version="$major.$minor.$patch"
+        else
+            print_error "Invalid version format: $current_version"
+            exit 1
+        fi
+        
+        # Update manifest.json with new version using sed
+        sed -i.bak "s/\"version\"[[:space:]]*:[[:space:]]*\"[^\"]*\"/\"version\": \"$new_version\"/" manifest.json
+        rm -f manifest.json.bak 2>/dev/null
+    fi
+    
+    print_success "Version updated: $current_version → $new_version"
+    
+    # Update ZIP_NAME to include the new version
+    ZIP_NAME="${EXTENSION_NAME}-v${new_version}-$(date +%Y%m%d-%H%M%S).zip"
+}
+
 # Function to check if required files exist
 check_required_files() {
     print_status "Checking required files..."
@@ -128,8 +186,19 @@ validate_zip() {
 
 # Function to display installation instructions
 show_installation_instructions() {
+    # Get current version for display
+    local current_version=""
+    if command -v jq &> /dev/null; then
+        current_version=$(jq -r '.version' manifest.json)
+    else
+        current_version=$(grep -o '"version"[[:space:]]*:[[:space:]]*"[^"]*"' manifest.json | sed 's/.*"\([^"]*\)".*/\1/')
+    fi
+    
     echo ""
     print_success "Build completed successfully!"
+    echo ""
+    print_status "Extension version: $current_version"
+    print_status "Build output: $ZIP_NAME"
     echo ""
     echo "To install the extension in Chrome:"
     echo "1. Open Chrome and go to chrome://extensions/"
@@ -138,7 +207,7 @@ show_installation_instructions() {
     echo "4. Select the '$BUILD_DIR' folder or extract the '$ZIP_NAME' file"
     echo ""
     echo "Files included in the build:"
-    echo "  - manifest.json (extension configuration)"
+    echo "  - manifest.json (extension configuration - v$current_version)"
     echo "  - background.js (background script)"
     echo "  - content.js (content script)"
     echo "  - templates.js (template definitions)"
@@ -162,6 +231,7 @@ main() {
     
     # Execute build steps
     check_required_files
+    update_version
     clean_build_dir
     copy_extension_files
     create_zip_file
