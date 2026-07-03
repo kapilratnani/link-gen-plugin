@@ -49,7 +49,6 @@ function createTemplateSelector(templates, preSelectedText = '') {
   const resultsContainer = document.createElement('div');
   resultsContainer.className = 'search-results';
 
-  // Add template button
   const addButton = document.createElement('button');
   addButton.className = 'add-template-button';
   addButton.textContent = '+ Add Template';
