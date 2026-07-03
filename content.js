@@ -6,7 +6,7 @@ let modalElement = null;
 let textSelectionHandler = null;
 let modalKeyDownHandler = null;
 
-// Create and show the template selector modal with omni search
+// Create and show the template selector modal with omni search and calculator mode
 function createTemplateSelector(templates, preSelectedText = '') {
   cleanupModal();
 
@@ -31,11 +31,16 @@ function createTemplateSelector(templates, preSelectedText = '') {
   const content = document.createElement('div');
   content.className = 'modal-content';
 
+  // Calculator result floating window
+  const calcResult = document.createElement('div');
+  calcResult.className = 'calc-result';
+  calcResult.style.display = 'none';
+
   // Search input
   const searchInput = document.createElement('input');
   searchInput.type = 'text';
   searchInput.className = 'search-input';
-  searchInput.placeholder = 'Search templates...';
+  searchInput.placeholder = 'Search templates... (cal &lt;expr&gt; for calculator)';
   searchInput.setAttribute('aria-label', 'Search templates');
   searchInput.setAttribute('autocomplete', 'off');
   searchInput.spellcheck = false;
@@ -44,13 +49,21 @@ function createTemplateSelector(templates, preSelectedText = '') {
   const resultsContainer = document.createElement('div');
   resultsContainer.className = 'search-results';
 
+  const addButton = document.createElement('button');
+  addButton.className = 'add-template-button';
+  addButton.textContent = '+ Add Template';
+  addButton.onclick = () => showTemplateEditor();
+
   let selectedIndex = 0;
   let filteredTemplates = templates;
   const templateItems = [];
+  let isCalcMode = false;
 
   function renderResults() {
     resultsContainer.innerHTML = '';
     templateItems.length = 0;
+
+    if (isCalcMode) return;
 
     if (filteredTemplates.length === 0) {
       const noResults = document.createElement('div');
@@ -115,17 +128,48 @@ function createTemplateSelector(templates, preSelectedText = '') {
     renderResults();
   }
 
+  function handleCalcInput(value) {
+    const calcMatch = value.match(/^cal\s+(.*)/i);
+    if (calcMatch) {
+      isCalcMode = true;
+      const expr = calcMatch[1].trim();
+      if (expr) {
+        const result = window.calcEval(expr);
+        if (result.success) {
+          const num = result.result;
+          const display = typeof num === 'number' ? (Number.isInteger(num) ? num : num.toFixed(4)) : num;
+          calcResult.textContent = '= ' + display;
+          calcResult.className = 'calc-result calc-result-success';
+        } else {
+          calcResult.textContent = result.error;
+          calcResult.className = 'calc-result calc-result-error';
+        }
+        calcResult.style.display = 'block';
+      } else {
+        calcResult.style.display = 'none';
+      }
+      resultsContainer.style.display = 'none';
+      addButton.style.display = 'none';
+      header.querySelector('.keyboard-hint').textContent = 'Calculator mode — Esc to close';
+      renderResults();
+    } else {
+      isCalcMode = false;
+      calcResult.style.display = 'none';
+      resultsContainer.style.display = '';
+      addButton.style.display = '';
+      header.querySelector('.keyboard-hint').textContent = 'Type to search, ↑↓ to navigate, Enter to select, Esc to close';
+      filterTemplates(value);
+    }
+  }
+
   searchInput.addEventListener('input', (e) => {
-    filterTemplates(e.target.value);
+    handleCalcInput(e.target.value);
   });
 
+  content.appendChild(calcResult);
   content.appendChild(searchInput);
   content.appendChild(resultsContainer);
-
-  const addButton = document.createElement('button');
-  addButton.className = 'add-template-button';
-  addButton.textContent = '+ Add Template';
-  addButton.onclick = () => showTemplateEditor();
+  content.appendChild(addButton);
 
   const footer = document.createElement('div');
   footer.className = 'modal-footer';
@@ -135,7 +179,6 @@ function createTemplateSelector(templates, preSelectedText = '') {
   closeButton.textContent = 'Close';
   closeButton.onclick = cleanupModal;
 
-  footer.appendChild(addButton);
   footer.appendChild(closeButton);
 
   modalContainer.appendChild(header);
@@ -165,17 +208,21 @@ function createTemplateSelector(templates, preSelectedText = '') {
     switch (e.key) {
       case 'ArrowUp':
         e.preventDefault();
-        updateSelectedTemplate(selectedIndex - 1);
+        if (!isCalcMode) updateSelectedTemplate(selectedIndex - 1);
         break;
 
       case 'ArrowDown':
         e.preventDefault();
-        updateSelectedTemplate(selectedIndex + 1);
+        if (!isCalcMode) updateSelectedTemplate(selectedIndex + 1);
         break;
 
       case 'Enter':
         e.preventDefault();
-        if (filteredTemplates[selectedIndex]) {
+        if (isCalcMode) {
+          if (searchInput.value.trim()) {
+            cleanupModal();
+          }
+        } else if (filteredTemplates[selectedIndex]) {
           const template = filteredTemplates[selectedIndex];
           selectedTemplate = template;
           cleanupModal();

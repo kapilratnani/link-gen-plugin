@@ -30,6 +30,7 @@
       ],
       "js": [
         "templates.js",
+        "calculator-eval.js",
         "content.js"
       ],
       "css": [
