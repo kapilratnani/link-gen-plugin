@@ -6,120 +6,201 @@ let modalElement = null;
 let textSelectionHandler = null;
 let modalKeyDownHandler = null;
 
-// Create and show the template selector modal
+// Create and show the template selector modal with omni search and calculator mode
 function createTemplateSelector(templates, preSelectedText = '') {
-  // Clean up any existing modal and its listeners
   cleanupModal();
-  
+
   modalElement = document.createElement('div');
   modalElement.className = 'modal-overlay';
   modalElement.setAttribute('role', 'dialog');
   modalElement.setAttribute('aria-modal', 'true');
-  
+
   const modalContainer = document.createElement('div');
   modalContainer.className = 'modal-container';
-  
+
   const header = document.createElement('div');
   header.className = 'modal-header';
   header.innerHTML = `
     <div class="header-content">
       <h2>Link Templates</h2>
-      <div class="keyboard-hint">Use ↑↓ arrows to navigate, Enter to select, Esc to close</div>
+      <div class="keyboard-hint">Type to search, ↑↓ to navigate, Enter to select, Esc to close</div>
     </div>
     <button class="modal-close" aria-label="Close">×</button>
   `;
-  
+
   const content = document.createElement('div');
   content.className = 'modal-content';
-  
-  // Add template list
-  const templateList = document.createElement('div');
-  templateList.className = 'template-list';
-  
-  let selectedIndex = 0;
-  const templateItems = [];
-  
-  templates.forEach((template, index) => {
-    const templateItem = document.createElement('div');
-    templateItem.className = 'template-item';
-    templateItem.tabIndex = 0;
-    templateItem.setAttribute('role', 'button');
-    templateItem.setAttribute('aria-label', `Select template: ${template.name}`);
-    templateItem.innerHTML = `
-      <div class="template-name">${template.name}</div>
-      <div class="template-actions">
-        <button class="edit-template" data-id="${template.id}" aria-label="Edit template">✎</button>
-        <button class="delete-template" data-id="${template.id}" aria-label="Delete template">×</button>
-      </div>
-    `;
-    
-    templateItem.dataset.templateIndex = index;
-    
-    templateItem.querySelector('.template-name').onclick = () => {
-      selectedTemplate = template;
-      cleanupModal();
-      createParameterPopup(template, preSelectedText);
-    };
-    
-    templateItem.querySelector('.edit-template').onclick = (e) => {
-      e.stopPropagation();
-      showTemplateEditor(template);
-    };
-    
-    templateItem.querySelector('.delete-template').onclick = (e) => {
-      e.stopPropagation();
-      if (confirm(`Delete template "${template.name}"?`)) {
-        templateManager.deleteTemplate(template.id).then(() => {
-          const newTemplates = templates.filter(t => t.id !== template.id);
-          createTemplateSelector(newTemplates, '');
-        });
-      }
-    };
-    
-    templateList.appendChild(templateItem);
-    templateItems.push(templateItem);
-  });
-  
+
+  // Calculator result floating window
+  const calcResult = document.createElement('div');
+  calcResult.className = 'calc-result';
+  calcResult.style.display = 'none';
+
+  // Search input
+  const searchInput = document.createElement('input');
+  searchInput.type = 'text';
+  searchInput.className = 'search-input';
+  searchInput.placeholder = 'Search templates... (cal &lt;expr&gt; for calculator)';
+  searchInput.setAttribute('aria-label', 'Search templates');
+  searchInput.setAttribute('autocomplete', 'off');
+  searchInput.spellcheck = false;
+
+  // Results container
+  const resultsContainer = document.createElement('div');
+  resultsContainer.className = 'search-results';
+
+  // Add template button
   const addButton = document.createElement('button');
   addButton.className = 'add-template-button';
   addButton.textContent = '+ Add Template';
   addButton.onclick = () => showTemplateEditor();
-  
-  content.appendChild(templateList);
+
+  let selectedIndex = 0;
+  let filteredTemplates = templates;
+  const templateItems = [];
+  let isCalcMode = false;
+
+  function renderResults() {
+    resultsContainer.innerHTML = '';
+    templateItems.length = 0;
+
+    if (isCalcMode) return;
+
+    if (filteredTemplates.length === 0) {
+      const noResults = document.createElement('div');
+      noResults.className = 'no-results';
+      noResults.textContent = 'No templates found';
+      resultsContainer.appendChild(noResults);
+      return;
+    }
+
+    filteredTemplates.forEach((template, index) => {
+      const templateItem = document.createElement('div');
+      templateItem.className = 'template-item';
+      templateItem.tabIndex = 0;
+      templateItem.setAttribute('role', 'button');
+      templateItem.setAttribute('aria-label', `Select template: ${template.name}`);
+      templateItem.innerHTML = `
+        <div class="template-name">${template.name}</div>
+        <div class="template-actions">
+          <button class="edit-template" data-id="${template.id}" aria-label="Edit template">✎</button>
+          <button class="delete-template" data-id="${template.id}" aria-label="Delete template">×</button>
+        </div>
+      `;
+
+      templateItem.dataset.templateIndex = index;
+
+      templateItem.querySelector('.template-name').onclick = () => {
+        selectedTemplate = template;
+        cleanupModal();
+        createParameterPopup(template, preSelectedText);
+      };
+
+      templateItem.querySelector('.edit-template').onclick = (e) => {
+        e.stopPropagation();
+        showTemplateEditor(template);
+      };
+
+      templateItem.querySelector('.delete-template').onclick = (e) => {
+        e.stopPropagation();
+        if (confirm(`Delete template "${template.name}"?`)) {
+          templateManager.deleteTemplate(template.id).then(() => {
+            const newTemplates = templates.filter(t => t.id !== template.id);
+            createTemplateSelector(newTemplates, '');
+          });
+        }
+      };
+
+      resultsContainer.appendChild(templateItem);
+      templateItems.push(templateItem);
+    });
+
+    if (filteredTemplates.length > 0) {
+      selectedIndex = 0;
+      templateItems[0].classList.add('selected');
+    }
+  }
+
+  function filterTemplates(query) {
+    const q = query.toLowerCase().trim();
+    filteredTemplates = q
+      ? templates.filter(t => t.name.toLowerCase().includes(q) || t.template.toLowerCase().includes(q))
+      : templates;
+    renderResults();
+  }
+
+  function handleCalcInput(value) {
+    const calcMatch = value.match(/^cal\s+(.*)/i);
+    if (calcMatch) {
+      isCalcMode = true;
+      const expr = calcMatch[1].trim();
+      if (expr) {
+        const result = window.calcEval(expr);
+        if (result.success) {
+          const num = result.result;
+          const display = typeof num === 'number' ? (Number.isInteger(num) ? num : num.toFixed(4)) : num;
+          calcResult.textContent = '= ' + display;
+          calcResult.className = 'calc-result calc-result-success';
+        } else {
+          calcResult.textContent = result.error;
+          calcResult.className = 'calc-result calc-result-error';
+        }
+        calcResult.style.display = 'block';
+      } else {
+        calcResult.style.display = 'none';
+      }
+      resultsContainer.style.display = 'none';
+      addButton.style.display = 'none';
+      header.querySelector('.keyboard-hint').textContent = 'Calculator mode — Esc to close';
+      renderResults();
+    } else {
+      isCalcMode = false;
+      calcResult.style.display = 'none';
+      resultsContainer.style.display = '';
+      addButton.style.display = '';
+      header.querySelector('.keyboard-hint').textContent = 'Type to search, ↑↓ to navigate, Enter to select, Esc to close';
+      filterTemplates(value);
+    }
+  }
+
+  searchInput.addEventListener('input', (e) => {
+    handleCalcInput(e.target.value);
+  });
+
+  content.appendChild(calcResult);
+  content.appendChild(searchInput);
+  content.appendChild(resultsContainer);
   content.appendChild(addButton);
-  
+
   const footer = document.createElement('div');
   footer.className = 'modal-footer';
-  
+
   const closeButton = document.createElement('button');
   closeButton.className = 'modal-button secondary';
   closeButton.textContent = 'Close';
   closeButton.onclick = cleanupModal;
-  
+
   footer.appendChild(closeButton);
-  
+
   modalContainer.appendChild(header);
   modalContainer.appendChild(content);
   modalContainer.appendChild(footer);
   modalElement.appendChild(modalContainer);
   document.body.appendChild(modalElement);
 
-  // Store the last focused element before opening modal
   const previousActiveElement = document.activeElement;
-  
-  // Function to update selected template
+
   function updateSelectedTemplate(newIndex) {
+    if (templateItems.length === 0) return;
     templateItems[selectedIndex].classList.remove('selected');
-    selectedIndex = newIndex;
+    selectedIndex = (newIndex + templateItems.length) % templateItems.length;
     templateItems[selectedIndex].classList.add('selected');
-    templateItems[selectedIndex].focus();
     templateItems[selectedIndex].scrollIntoView({
       block: 'nearest',
       behavior: 'smooth'
     });
   }
-  
-  // Handle keyboard navigation
+
   function handleKeyDown(e) {
     if (!modalElement.contains(document.activeElement)) {
       return;
@@ -128,73 +209,53 @@ function createTemplateSelector(templates, preSelectedText = '') {
     switch (e.key) {
       case 'ArrowUp':
         e.preventDefault();
-        updateSelectedTemplate((selectedIndex - 1 + templateItems.length) % templateItems.length);
+        if (!isCalcMode) updateSelectedTemplate(selectedIndex - 1);
         break;
-        
+
       case 'ArrowDown':
         e.preventDefault();
-        updateSelectedTemplate((selectedIndex + 1) % templateItems.length);
+        if (!isCalcMode) updateSelectedTemplate(selectedIndex + 1);
         break;
-        
+
       case 'Enter':
         e.preventDefault();
-        const template = templates[selectedIndex];
-        selectedTemplate = template;
-        cleanupModal();
-        createParameterPopup(template, preSelectedText);
+        if (isCalcMode) {
+          if (searchInput.value.trim()) {
+            cleanupModal();
+          }
+        } else if (filteredTemplates[selectedIndex]) {
+          const template = filteredTemplates[selectedIndex];
+          selectedTemplate = template;
+          cleanupModal();
+          createParameterPopup(template, preSelectedText);
+        }
         break;
-        
+
       case 'Escape':
         e.preventDefault();
         cleanupModal();
         break;
-
-      case 'Tab':
-        e.preventDefault();
-        const focusableElements = modalContainer.querySelectorAll(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
-        const firstFocusableElement = focusableElements[0];
-        const lastFocusableElement = focusableElements[focusableElements.length - 1];
-
-        if (e.shiftKey) {
-          if (document.activeElement === firstFocusableElement) {
-            lastFocusableElement.focus();
-          } else {
-            const currentIndex = Array.from(focusableElements).indexOf(document.activeElement);
-            focusableElements[currentIndex - 1].focus();
-          }
-        } else {
-          if (document.activeElement === lastFocusableElement) {
-            firstFocusableElement.focus();
-          } else {
-            const currentIndex = Array.from(focusableElements).indexOf(document.activeElement);
-            focusableElements[currentIndex + 1].focus();
-          }
-        }
-        break;
     }
   }
-  
-  // Add keyboard event listener to the document
+
   modalKeyDownHandler = handleKeyDown;
   document.addEventListener('keydown', modalKeyDownHandler, true);
-  
-  // Close modal when clicking outside
+
   const outsideClickHandler = (e) => {
     if (e.target === modalElement) {
       cleanupModal();
     }
   };
   modalElement.addEventListener('click', outsideClickHandler);
-  
-  // Close button handler
-  header.querySelector('.modal-close').onclick = cleanupModal;
-  
-  // Select and focus first template
-  updateSelectedTemplate(0);
 
-  // Store cleanup function
+  header.querySelector('.modal-close').onclick = cleanupModal;
+
+  renderResults();
+
+  requestAnimationFrame(() => {
+    searchInput.focus();
+  });
+
   modalElement.cleanup = () => {
     document.removeEventListener('keydown', modalKeyDownHandler, true);
     modalElement.removeEventListener('click', outsideClickHandler);

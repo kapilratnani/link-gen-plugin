@@ -101,6 +101,7 @@ check_required_files() {
         "background.js"
         "content.js"
         "templates.js"
+        "calculator-eval.js"
         "styles.css"
         "icons/icon16.png"
         "icons/icon32.png"
@@ -147,6 +148,7 @@ copy_extension_files() {
     cp background.js "$BUILD_DIR/"
     cp content.js "$BUILD_DIR/"
     cp templates.js "$BUILD_DIR/"
+    cp calculator-eval.js "$BUILD_DIR/"
     cp styles.css "$BUILD_DIR/"
     
     # Copy icons directory
@@ -211,6 +213,7 @@ show_installation_instructions() {
     echo "  - background.js (background script)"
     echo "  - content.js (content script)"
     echo "  - templates.js (template definitions)"
+    echo "  - calculator-eval.js (math expression evaluator)"
     echo "  - styles.css (styling)"
     echo "  - icons/ (extension icons)"
     echo ""
