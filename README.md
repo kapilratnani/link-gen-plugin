@@ -1,10 +1,10 @@
 # Link Generator Chrome Extension
 
-A Chrome extension that helps you generate and open links from predefined templates using selected text from web pages.
+A Chrome extension that helps you generate and open links from templates using selected text from web pages.
 
 ## Features
 
-- Generate links from predefined templates
+- Generate links from custom templates
 - Use selected text from web pages as template parameters
 - Keyboard shortcut (Ctrl+Shift+L or Command+Shift+L) to trigger the extension
 - Clean and intuitive user interface
@@ -25,27 +25,7 @@ A Chrome extension that helps you generate and open links from predefined templa
 4. Click on text in the webpage to fill in the template parameters
 5. Once all parameters are filled, the link will automatically open in a new tab
 
-## Default Templates
-
-The extension comes with the following predefined templates:
-
-### Quark Fare Visualization Templates
-- **Quark Fare Viz Prod**: `https://fares.uberinternal.com/fares?lifecycleId={lifecycleId}&contextId={contextId}&requestId={requestId}&environment=Production`
-  - Parameters: `lifecycleId`, `contextId`, `requestId`
-- **Quark Fare Viz Shadow**: `https://fares.uberinternal.com/fares?lifecycleId={lifecycleId}&contextId={contextId}&requestId={requestId}&environment=Shadow`
-  - Parameters: `lifecycleId`, `contextId`, `requestId`
-- **Quark Fare Viz Staging**: `https://fares.uberinternal.com/fares?lifecycleId={lifecycleId}&contextId={contextId}&requestId={requestId}&environment=Staging`
-  - Parameters: `lifecycleId`, `contextId`, `requestId`
-
-### Wayfare Fares Inspector
-- **Wayfare Fares Inspector**: `https://fares.uberinternal.com/inspect/production/{sessionId}/{flowId}/{requestId}`
-  - Parameters: `sessionId`, `flowId`, `requestId`
-
-### Chronicle
-- **Chronicle**: `https://chronicle.uberinternal.com/trip/{tripId}/overview`
-  - Parameters: `tripId`
-
-## Customizing Templates
+## Adding Templates
 
 The extension includes a built-in template management system that allows you to add, edit, and delete templates directly through the UI. All templates are saved in Chrome's local storage and persist between sessions.
 
@@ -134,7 +114,3 @@ To modify the extension:
 - `templates.js`: Template definitions
 - `styles.css`: Styling for the popup
 - `icons/`: Directory containing extension icons
-
-## Note
-
-The default templates are configured for Uber internal services. You'll need to replace the template URLs in `templates.js` with your actual URLs before using the extension in your environment. 

@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Build script for Uber Link Generator Chrome Extension
+# Build script for Link Generator Chrome Extension
 # This script creates a zip file containing all necessary files for Chrome extension installation
 
 set -e  # Exit on any error
 
 # Configuration
-EXTENSION_NAME="uber-link-generator"
+EXTENSION_NAME="link-generator"
 BUILD_DIR="build"
 ZIP_NAME="${EXTENSION_NAME}-$(date +%Y%m%d-%H%M%S).zip"
 
@@ -219,7 +219,7 @@ show_installation_instructions() {
 # Main execution
 main() {
     echo "=========================================="
-    echo "  Uber Link Generator - Build Script"
+    echo "  Link Generator - Build Script"
     echo "=========================================="
     echo ""
     
