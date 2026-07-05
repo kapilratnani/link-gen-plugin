@@ -280,7 +280,13 @@ function createTemplateSelector(templates, preSelectedText = '') {
       case 'Enter':
         e.preventDefault();
         if (isCalcMode) {
-          if (searchInput.value.trim()) {
+          const trimmed = searchInput.value.trim();
+          if (trimmed) {
+            const resultText = calcResult.textContent;
+            if (resultText && calcResult.style.display !== 'none') {
+              navigator.clipboard.writeText(resultText).catch(() => {});
+              announce('Result ' + resultText + ' copied to clipboard');
+            }
             cleanupModal();
           }
         } else if (filteredTemplates[selectedIndex]) {
