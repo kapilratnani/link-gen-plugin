@@ -1,10 +1,150 @@
-!function(e,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t():"function"==typeof define&&define.amd?define(t):(e="undefined"!=typeof globalThis?globalThis:e||self).Mexp=t()}(this,(function(){"use strict";function e(){return e=Object.assign?Object.assign.bind():function(e){for(var t=1;t<arguments.length;t++){var n=arguments[t];for(var a in n)Object.prototype.hasOwnProperty.call(n,a)&&(e[a]=n[a])}return e},e.apply(this,arguments)}var t,n={0:11,1:0,2:3,3:0,4:0,5:0,6:0,7:11,8:11,9:1,10:10,11:0,12:11,13:0,14:-1};function a(e,t){for(var n=0;n<e.length;n++)e[n]+=t;return e}!function(e){e[e.FUNCTION_WITH_ONE_ARG=0]="FUNCTION_WITH_ONE_ARG",e[e.NUMBER=1]="NUMBER",e[e.BINARY_OPERATOR_HIGH_PRECENDENCE=2]="BINARY_OPERATOR_HIGH_PRECENDENCE",e[e.CONSTANT=3]="CONSTANT",e[e.OPENING_PARENTHESIS=4]="OPENING_PARENTHESIS",e[e.CLOSING_PARENTHESIS=5]="CLOSING_PARENTHESIS",e[e.DECIMAL=6]="DECIMAL",e[e.POSTFIX_FUNCTION_WITH_ONE_ARG=7]="POSTFIX_FUNCTION_WITH_ONE_ARG",e[e.FUNCTION_WITH_N_ARGS=8]="FUNCTION_WITH_N_ARGS",e[e.BINARY_OPERATOR_LOW_PRECENDENCE=9]="BINARY_OPERATOR_LOW_PRECENDENCE",e[e.BINARY_OPERATOR_PERMUTATION=10]="BINARY_OPERATOR_PERMUTATION",e[e.COMMA=11]="COMMA",e[e.EVALUATED_FUNCTION=12]="EVALUATED_FUNCTION",e[e.EVALUATED_FUNCTION_PARAMETER=13]="EVALUATED_FUNCTION_PARAMETER",e[e.SPACE=14]="SPACE"}(t||(t={}));var o={0:!0,1:!0,3:!0,4:!0,6:!0,8:!0,9:!0,12:!0,13:!0,14:!0},h={0:!0,1:!0,2:!0,3:!0,4:!0,5:!0,6:!0,7:!0,8:!0,9:!0,10:!0,11:!0,12:!0,13:!0},r={0:!0,3:!0,4:!0,8:!0,12:!0,13:!0},u={},s={0:!0,1:!0,3:!0,4:!0,6:!0,8:!0,12:!0,13:!0},p={1:!0},i=[[],["1","2","3","7","8","9","4","5","6","+","-","*","/","(",")","^","!","P","C","e","0",".",",","n"," ","&"],["pi","ln","Pi"],["sin","cos","tan","Del","int","Mod","log","pow"],["asin","acos","atan","cosh","root","tanh","sinh"],["acosh","atanh","asinh","Sigma"]];function l(e,t,n,a){for(var o=0;o<a;o++)if(e[n+o]!==t[o])return!1;return!0}function E(e){for(var a=0;a<e.length;a++){var o=e[a].token.length,h=-1;e[a].type==t.NUMBER&&(h=e[a].value.indexOf(".")),e[a].type==t.DECIMAL&&(h=e[a].value.indexOf("."));for(var r=e[a].type==t.NUMBER||e[a].type==t.DECIMAL?e[a].value.length:o-1;r>=0;r--){var u=!0,s=e[a].value.length-r;if(s>0&&s<=i.length){var p=i[s-1];for(var c=0;c<p.length;c++)if(l(e[a].value,p[c],r,s)){u=!1;var d=e[a].value.substring(0,r)+e[a].value.substring(r+s);e[a].token=e[a].value=d,e[a].type=t.NUMBER;break}}if(!u)break}}}var c=[{token:"sin",type:t.FUNCTION_WITH_ONE_ARG,value:"sin"},{token:"cos",type:t.FUNCTION_WITH_ONE_ARG,value:"cos"},{token:"tan",type:t.FUNCTION_WITH_ONE_ARG,value:"tan"},{token:"asin",type:t.FUNCTION_WITH_ONE_ARG,value:"asin"},{token:"acos",type:t.FUNCTION_WITH_ONE_ARG,value:"acos"},{token:"atan",type:t.FUNCTION_WITH_ONE_ARG,value:"atan"},{token:"sinh",type:t.FUNCTION_WITH_ONE_ARG,value:"sinh"},{token:"cosh",type:t.FUNCTION_WITH_ONE_ARG,value:"cosh"},{token:"tanh",type:t.FUNCTION_WITH_ONE_ARG,value:"tanh"},{token:"asinh",type:t.FUNCTION_WITH_ONE_ARG,value:"asinh"},{token:"acosh",type:t.FUNCTION_WITH_ONE_ARG,value:"acosh"},{token:"atanh",type:t.FUNCTION_WITH_ONE_ARG,value:"atanh"},{token:"log",type:t.FUNCTION_WITH_ONE_ARG,value:"log"},{token:"ln",type:t.FUNCTION_WITH_ONE_ARG,value:"ln"},{token:"Pi",type:t.FUNCTION_WITH_N_ARGS,value:"Pi"},{token:"Sigma",type:t.FUNCTION_WITH_N_ARGS,value:"Sigma"},{token:"pow",type:t.FUNCTION_WITH_N_ARGS,value:"pow"},{token:"Mod",type:t.BINARY_OPERATOR_HIGH_PRECENDENCE,value:"Mod"},{token:"Del",type:t.POSTFIX_FUNCTION_WITH_ONE_ARG,value:"Del",precedence:11},{token:"int",type:t.FUNCTION_WITH_ONE_ARG,value:"int"},{token:"root",type:t.FUNCTION_WITH_ONE_ARG,value:"root",precedence:11},{token:"n",type:t.CONSTANT,value:"n"},{token:"pi",type:t.CONSTANT,value:"pi"},{token:"e",type:t.CONSTANT,value:"e"},{token:"C",type:t.BINARY_OPERATOR_PERMUTATION,value:"C"},{token:"P",type:t.BINARY_OPERATOR_PERMUTATION,value:"P"}];function d(){var e=this;this.addToken=function(t){for(var n=[],a=0;a<arguments.length;a++)n=n.concat(arguments[a]);for(var o=0;o<n.length;o++){var h=n[o];h.type===t.FUNCTION_WITH_ONE_ARG||h.type===t.FUNCTION_WITH_N_ARGS?(h.precedence=11,h.value=h.token):h.type===t.POSTFIX_FUNCTION_WITH_ONE_ARG&&(h.precedence=11);var r=!0;for(var u=0;u<c.length;u++)if(c[u].token===h.token){c[u]=h,r=!1;break}r&&c.push(h),E([h]);var s=h.token.length;p[s]||(p[s]=[]),p[s].push(h.token),i[s]||(i[s]=[]);for(var d=i[s],f=0;f<d.length;f++)if(d[f]===h.token){d.splice(f,1);break}i[s].push(h.token),d.sort()}},this.lex=function t(n,a){a&&e.addToken(a);var o=[];n=String(n);var h,r,u,s,d=0,p="",i="",l=n.length;for(h=0;h<l;){p="",i="",r=n[h],n[h]in u?p=n[h++]:(s=10;h+s>l&&(s=l-h);for(var E=s;E>=0;E--)if(i=n.substr(h,E),i in u){p=i,h+=E;break}if(!p){for(var P=1;P<=5&&h+P<=l;P++){i=n.substr(h,P);for(var _=0;_<i.length;_++)if(!(i[_]>="0"&&i[_]<="9"||"."===i[_]||","===i[_]||" "===i[_]||"n"===i[_]||"-"===i[_]))break;if(_===i.length){p=i,h+=i.length;break}}if(!p)throw new Error("Could not find match for string at position "+h+" of expression")}}if(d=o.length-1,d>=0&&o[d].type===t.NUMBER&&p.includes("-")?i=n.slice(h-p.length,h),i.includes("-")?i=i.replace("-","e"):i=i.replace(/[^0-9]/g,"")+".-":p.includes("-")&&(p=p.replace("-","e")),p in u){var x=u[p];if(x.type===t.FUNCTION_WITH_ONE_ARG&&(d>=0&&(o[d].type===t.NUMBER||o[d].type===t.CONSTANT||o[d].type===t.CLOSING_PARENTHESIS||o[d].type===t.FUNCTION_WITH_N_ARGS||o[d].type===t.FUNCTION_WITH_ONE_ARG)||d<0||o[d].type===t.OPENING_PARENTHESIS||o[d].type===t.COMMA||o[d].type===t.BINARY_OPERATOR_HIGH_PRECENDENCE||o[d].type===t.BINARY_OPERATOR_LOW_PRECENDENCE||o[d].type===t.BINARY_OPERATOR_PERMUTATION)){var P=e({},x,{token:p,value:p});o.push(P)}else x.type===t.FUNCTION_WITH_N_ARGS&&(d>=0&&(o[d].type===t.NUMBER||o[d].type===t.CONSTANT||o[d].type===t.CLOSING_PARENTHESIS||o[d].type===t.FUNCTION_WITH_N_ARGS||o[d].type===t.FUNCTION_WITH_ONE_ARG)||d<0||o[d].type===t.OPENING_PARENTHESIS||o[d].type===t.COMMA||o[d].type===t.BINARY_OPERATOR_HIGH_PRECENDENCE||o[d].type===t.BINARY_OPERATOR_LOW_PRECENDENCE||o[d].type===t.BINARY_OPERATOR_PERMUTATION)?(P=e({},x,{token:p,value:p}),o.push(P)):x.type===t.FUNCTION_WITH_ONE_ARG||x.type===t.FUNCTION_WITH_N_ARGS?(P=e({},x,{value:p}),o.push(P)):o.push(e({},x))}else if("-"===p){if(d>=0&&(o[d].type===t.NUMBER||o[d].type===t.DECIMAL||o[d].type===t.CONSTANT||o[d].type===t.CLOSING_PARENTHESIS||o[d].type===t.POSTFIX_FUNCTION_WITH_ONE_ARG||o[d].type===t.FUNCTION_WITH_N_ARGS||o[d].type===t.FUNCTION_WITH_ONE_ARG||o[d].type===t.EVALUATED_FUNCTION))o.push({token:p,type:t.BINARY_OPERATOR_LOW_PRECENDENCE,value:"-"},{token:"1",type:t.NUMBER,value:"1"},{token:"*",type:t.BINARY_OPERATOR_HIGH_PRECENDENCE,value:"*"});else if(d>=0&&o[d].type===t.OPENING_PARENTHESIS){var A={token:"-1",type:t.NUMBER,value:"-1"};o.push(A)}else o.push({token:p,type:t.BINARY_OPERATOR_LOW_PRECENDENCE,value:"-"});o.push({token:"1",type:t.NUMBER,value:"1"},{token:"*",type:t.BINARY_OPERATOR_HIGH_PRECENDENCE,value:"*"})}else"+"===p?d>=0&&o[d].type===t.NUMBER?o.push({token:p,type:t.BINARY_OPERATOR_LOW_PRECENDENCE,value:"+"}):(o.push({token:"0",type:t.NUMBER,value:"0"}),o.push({token:"+",type:t.BINARY_OPERATOR_LOW_PRECENDENCE,value:"+"})):void 0===p&&""!==p?"."===n[h]?o.push({token:".",type:t.DECIMAL,value:"."}):","===n[h]?o.push({token:",",type:t.COMMA,value:","}):" "===n[h]?o.push({token:" ",type:t.SPACE,value:" "}):"("===n[h]?o.push({token:"(",type:t.OPENING_PARENTHESIS,value:"("}):")"===n[h]?o.push({token:")",type:t.CLOSING_PARENTHESIS,value:")"}):o.push({token:p,type:t.NUMBER,value:p})}var C,d=o.length-1;for(d>=0&&o[d].type===t.NUMBER?C=o[d].value.includes(".")||o[d].value.includes("e"):C=!1,d>=0&&o[d].type===t.DECIMAL&&(d>=1&&o[d-1].type===t.NUMBER?(o[d-1].value+=o[d].value,o.splice(d,1)):o.push({token:".0",type:t.NUMBER,value:".0"})),d=0;d<o.length;d++)o[d].type===t.NUMBER&&(o[d].value.includes("..")?o[d].value=o[d].value.replace("..","."):o[d].value.includes(".")&&o[d].value[o[d].value.length-1]==="."&&(o[d].value+="0"),o[d].value.includes(".e")?o[d].value=o[d].value.replace(".e","e"):o[d].value.includes("e-")&&(o[d].value=o[d].value.replace("e-","e").replace("-","")));for(d=0;d<o.length;d++)o[d].type===t.DECIMAL&&(d<o.length-1&&o[d+1].type===t.NUMBER?(o[d+1].value="."+o[d+1].value,d>=1&&o[d-1].type===t.NUMBER?o[d-1].value+=o[d+1].value:(o[d].value="."+o[d+1].value,o[d].type=t.NUMBER),o.splice(d+1,1)):d===o.length-1?o[d]={token:".0",type:t.NUMBER,value:".0"}:(o[d].type=t.NUMBER,o[d].value+="0"));return o},this.toPostfix=function(e){for(var a=[],o=[],h=0;h<e.length;h++){var r=e[h];switch(r.type){case t.NUMBER:case t.CONSTANT:case t.EVALUATED_FUNCTION_PARAMETER:case t.EVALUATED_FUNCTION:o.push(r);break;case t.FUNCTION_WITH_ONE_ARG:case t.FUNCTION_WITH_N_ARGS:case t.OPENING_PARENTHESIS:a.push(r);break;case t.COMMA:for(;a.length>0&&a[a.length-1].type!==t.OPENING_PARENTHESIS;)o.push(a.pop());break;case t.CLOSING_PARENTHESIS:for(;a.length>0&&a[a.length-1].type!==t.OPENING_PARENTHESIS;)o.push(a.pop());a.pop();break;default:var u;if(r.type===t.POSTFIX_FUNCTION_WITH_ONE_ARG){var s=e.length-1;if(h===0)throw new Error("Postfix function at start of expression");o.push(r)}else for(r.type!==t.BINARY_OPERATOR_PERMUTATION&&(u=r.precedence||n[r.type]);a.length>0&&(a[a.length-1].type===t.FUNCTION_WITH_ONE_ARG||a[a.length-1].type===t.FUNCTION_WITH_N_ARGS||a[a.length-1].type===t.OPENING_PARENTHESIS||a[a.length-1].type===t.POSTFIX_FUNCTION_WITH_ONE_ARG||(a[a.length-1].type!==t.BINARY_OPERATOR_PERMUTATION&&(u<=a[a.length-1].precedence||n[a[a.length-1].type]));)o.push(a.pop());r.type===t.BINARY_OPERATOR_PERMUTATION?a.push(r):a.push(r)}}for(;a.length>0;){var p=a.pop();o.push(p)}return o}}var f={ansiSurd:!0,pi:Math.PI,e:Math.E};function m(e){return e}function P(e,t){return e?t(e):t}function x(e,t,n){return t?n(e,t):n(e)}function A(e){if(void 0===e)return Math.random();var t=0,n=0,a=0,o=1;t=n=0!==e?Math.floor(Math.abs(e)):1;do n=Math.floor(Math.random()*t),a+=n,o*=n,t--}while(t>0);return a/o}function w(e,t,n){var a=[],o=0;if(2===arguments.length){n=t;for(var h=t;h>=e;h--)a[o++]=h;return a}for(var r=n;r>=t;r--)a[o++]=r;return a}return new(function(){function n(){this.toPostfix=d.toPostfix,this.addToken=d.addToken,this.lex=d.lex,this.postfixEval=function t(n,i){var a=[],o=i||f;for(var h=0;h<n.length;h++){var r=n[h];if(r.type===t.NUMBER||r.type===t.EVALUATED_FUNCTION_PARAMETER)a.push({number:r.value});else if(r.type===t.EVALUATED_FUNCTION)a.push(r);else if(r.type===t.CONSTANT)o.hasOwnProperty(r.value)?a.push({number:o[r.value]}):a.push({number:r.value});else if(r.type===t.FUNCTION_WITH_ONE_ARG){var u=a.pop();if(void 0===u.number)throw new Error("Expression not complete");switch(r.value){case"sin":u.number=m(Math.sin(u.number));break;case"cos":u.number=m(Math.cos(u.number));break;case"tan":u.number=m(Math.tan(u.number));break;case"asin":u.number=m(Math.asin(u.number));break;case"acos":u.number=m(Math.acos(u.number));break;case"atan":u.number=m(Math.atan(u.number));break;case"sinh":u.number=m(Math.sinh(u.number));break;case"cosh":u.number=m(Math.cosh(u.number));break;case"tanh":u.number=m(Math.tanh(u.number));break;case"asinh":u.number=m(Math.asinh(u.number));break;case"acosh":u.number=m(Math.acosh(u.number));break;case"atanh":u.number=m(Math.atanh(u.number));break;case"log":u.number=m(Math.log(u.number)/Math.LN10);break;case"ln":u.number=m(Math.log(u.number));break;case"int":u.number=m(parseInt(u.number,10));break;case"root":u.number=m(Math.sqrt(u.number))}a.push(u)}else if(r.type===t.FUNCTION_WITH_N_ARGS){var s=r.value;if("Sigma"===s||"Pi"===s){var p=parseInt(a.pop().number),i=parseInt(a.pop().number),l=a.pop().number,e="",c=(i-p)/Math.abs(i-p);if(i-p<0)throw new Error("Lower bound should be less than or equal to upper bound");for(var d=p;d<=i;d+=c){var f=n.length;n.splice(f,0,{type:t.EVALUATED_FUNCTION_PARAMETER,token:"n",value:d});var g=t(n);e="Sigma"===s?e+g:e*g}var v={number:e};a.push(v)}else if("pow"===s){var b=a.pop().number,y=a.pop().number;y={number:m(Math.pow(y.number,b.number))},a.push(y)}}else if(r.type===t.POSTFIX_FUNCTION_WITH_ONE_ARG){var u=a.pop();switch(r.value){case"Del":u.number=m(57.29577951308232*u.number)}}else if(r.type===t.BINARY_OPERATOR_HIGH_PRECENDENCE||r.type===t.BINARY_OPERATOR_LOW_PRECENDENCE){var b=a.pop(),y=a.pop();if(void 0===b.number||void 0===y.number)throw new Error("Expression not complete");switch(r.value){case"+":y.number=m(y.number+b.number);break;case"-":y.number=m(y.number-b.number);break;case"*":y.number=m(y.number*b.number);break;case"/":y.number=m(y.number/b.number);break;case"Mod":y.number=m(y.number%b.number)}a.push(y)}else if(r.type===t.BINARY_OPERATOR_PERMUTATION){var b=a.pop(),y=a.pop();if(void 0===b.number||void 0===y.number)throw new Error("Expression not complete");var k;if("C"===r.value){var C=1;for(k=y.number-b.number+1;k<=y.number;k++)C*=k;for(k=1;k<=b.number;k++)C/=k;y.number=m(C)}else if("P"===r.value){var C=1;for(k=y.number-b.number+1;k<=y.number;k++)C*=k;y.number=m(C)}a.push(y)}else if(r.type===t.NUMBER||r.type===t.EVALUATED_FUNCTION_PARAMETER)a.push({number:r.value});else if(r.type===t.EVALUATED_FUNCTION)a.push(r)}var w=a.pop();return void 0===w?void 0:w.number},this.math={createMathFunctions:function(){},degree:function(e){return m(e)},radian:function(e){return m(e)}},this.tokens=[]}return n.prototype.eval=function(e,t,n){return this.postfixEval(this.toPostfix(this.lex(e,t)),n)},n}())}));
-var mexp = new Mexp();
 window.calcEval = function(expr) {
   try {
-    var result = mexp.eval(expr);
-    return { success: true, result: typeof result === 'number' && isFinite(result) ? result : String(result) };
+    var result = evaluate(expr);
+    if (typeof result === 'number' && isFinite(result)) {
+      return { success: true, result: result };
+    }
+    return { success: true, result: String(result) };
   } catch (e) {
     return { success: false, error: e.message || 'Invalid expression' };
   }
 };
+
+var FUNCTIONS = {
+  sin: Math.sin, cos: Math.cos, tan: Math.tan,
+  asin: Math.asin, acos: Math.acos, atan: Math.atan,
+  sinh: Math.sinh, cosh: Math.cosh, tanh: Math.tanh,
+  sqrt: Math.sqrt, abs: Math.abs, log10: Math.log,
+  ln: Math.log, floor: Math.floor, ceil: Math.ceil,
+  round: Math.round, exp: Math.exp
+};
+
+var CONSTANTS = { pi: Math.PI, e: Math.E };
+
+var PRECEDENCE = { '+': 1, '-': 1, '*': 2, '/': 2, '%': 2, '^': 3 };
+
+function tokenize(expr) {
+  var tokens = [];
+  var i = 0;
+  while (i < expr.length) {
+    if (expr[i] <= ' ' || expr[i] === ',') { i++; continue; }
+    if ('+-*/%^()'.indexOf(expr[i]) !== -1) {
+      tokens.push({ type: 'op', value: expr[i] });
+      i++;
+      continue;
+    }
+    if ((expr[i] >= '0' && expr[i] <= '9') || expr[i] === '.') {
+      var num = '';
+      while (i < expr.length && ((expr[i] >= '0' && expr[i] <= '9') || expr[i] === '.')) {
+        num += expr[i]; i++;
+      }
+      tokens.push({ type: 'num', value: parseFloat(num) });
+      continue;
+    }
+    if ((expr[i] >= 'a' && expr[i] <= 'z') || (expr[i] >= 'A' && expr[i] <= 'Z')) {
+      var name = '';
+      while (i < expr.length && ((expr[i] >= 'a' && expr[i] <= 'z') || (expr[i] >= 'A' && expr[i] <= 'Z') || (expr[i] >= '0' && expr[i] <= '9'))) {
+        name += expr[i]; i++;
+      }
+      if (CONSTANTS.hasOwnProperty(name)) {
+        tokens.push({ type: 'num', value: CONSTANTS[name] });
+      } else if (FUNCTIONS.hasOwnProperty(name)) {
+        tokens.push({ type: 'func', value: name });
+      } else {
+        throw new Error('Unknown identifier: ' + name);
+      }
+      continue;
+    }
+    throw new Error('Unexpected character: ' + expr[i]);
+  }
+  return tokens;
+}
+
+function shuntingYard(tokens) {
+  var output = [];
+  var ops = [];
+
+  for (var i = 0; i < tokens.length; i++) {
+    var tok = tokens[i];
+
+    if (tok.type === 'num') {
+      output.push(tok);
+    } else if (tok.type === 'func') {
+      ops.push(tok);
+    } else if (tok.value === '(') {
+      ops.push(tok);
+    } else if (tok.value === ')') {
+      while (ops.length > 0 && ops[ops.length - 1].value !== '(') {
+        output.push(ops.pop());
+      }
+      if (ops.length === 0) throw new Error('Mismatched parentheses');
+      ops.pop();
+      if (ops.length > 0 && ops[ops.length - 1].type === 'func') {
+        output.push(ops.pop());
+      }
+    } else if (tok.type === 'op') {
+      if ((tok.value === '-' || tok.value === '+') &&
+          (i === 0 || tokens[i - 1].type === 'op' || tokens[i - 1].value === '(')) {
+        if (tok.value === '-') {
+          output.push({ type: 'num', value: -1 });
+          ops.push({ type: 'op', value: '*' });
+        }
+      } else {
+        while (ops.length > 0 && ops[ops.length - 1].value !== '(' &&
+               ops[ops.length - 1].type !== 'func' &&
+               PRECEDENCE[ops[ops.length - 1].value] >= PRECEDENCE[tok.value] &&
+               ops[ops.length - 1].value !== '^') {
+          output.push(ops.pop());
+        }
+        ops.push(tok);
+      }
+    }
+  }
+
+  while (ops.length > 0) {
+    var op = ops.pop();
+    if (op.value === '(' || op.value === ')') throw new Error('Mismatched parentheses');
+    output.push(op);
+  }
+
+  return output;
+}
+
+function evaluatePostfix(tokens) {
+  var stack = [];
+
+  for (var i = 0; i < tokens.length; i++) {
+    var tok = tokens[i];
+
+    if (tok.type === 'num') {
+      stack.push(tok.value);
+    } else if (tok.type === 'func') {
+      var arg = stack.pop();
+      if (arg === undefined) throw new Error('Not enough arguments for ' + tok.value);
+      stack.push(FUNCTIONS[tok.value](arg));
+    } else if (tok.type === 'op') {
+      var right = stack.pop();
+      var left = stack.pop();
+      if (left === undefined || right === undefined) {
+        throw new Error('Not enough operands');
+      }
+      switch (tok.value) {
+        case '+': stack.push(left + right); break;
+        case '-': stack.push(left - right); break;
+        case '*': stack.push(left * right); break;
+        case '/': stack.push(left / right); break;
+        case '%': stack.push(left % right); break;
+        case '^': stack.push(Math.pow(left, right)); break;
+      }
+    }
+  }
+
+  if (stack.length !== 1) throw new Error('Invalid expression');
+  return stack[0];
+}
+
+function evaluate(expr) {
+  var tokens = tokenize(expr);
+  var postfix = shuntingYard(tokens);
+  return evaluatePostfix(postfix);
+}

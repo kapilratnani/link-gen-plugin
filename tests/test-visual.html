@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Link Generator Test</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; line-height: 1.6; }
+  h1 { color: #1f1f1f; }
+  p { margin-bottom: 20px; }
+  .test-area { border: 2px dashed #dadce0; border-radius: 12px; padding: 20px; margin: 20px 0; }
+  .actions { display: flex; gap: 10px; margin: 20px 0; }
+  .actions button { padding: 10px 20px; border-radius: 6px; border: 1px solid #dadce0; background: #fff; cursor: pointer; font-size: 14px; }
+  .actions button:hover { background: #f1f3f4; }
+</style>
+</head>
+<body>
+  <h1>Link Generator — Visual Test</h1>
+  <p>Select text below and use <strong>Ctrl+Shift+L</strong> to test the extension. Or click buttons to directly invoke UI components.</p>
+
+  <div class="test-area">
+    <h2>Sample Text for Selection</h2>
+    <p id="sample-text">The quick brown fox jumps over the lazy dog. SELECT-12345 is the ID you need. Also check USER-67890 for the second parameter.</p>
+  </div>
+
+  <div class="actions">
+    <button id="btn-templates">Show Template Selector</button>
+    <button id="btn-editor">Show Template Editor</button>
+    <button id="btn-calc">Test Calculator (cal 2+2)</button>
+    <button id="btn-dark">Toggle Dark Mode</button>
+  </div>
+
+  <script src="templates.js"></script>
+  <script src="calculator-eval.js"></script>
+  <script src="content.js"></script>
+  <script>
+    // Set up some default templates
+    const testTemplates = [
+      { id: 't1', name: 'Jira Ticket', template: 'https://jira.example.com/browse/{ticketId}', parameters: ['ticketId'] },
+      { id: 't2', name: 'GitHub PR', template: 'https://github.com/{owner}/{repo}/pull/{prNumber}', parameters: ['owner', 'repo', 'prNumber'] },
+      { id: 't3', name: 'Docs Page', template: 'https://docs.example.com/{version}/{page}', parameters: ['version', 'page'] },
+      { id: 't4', name: 'Search', template: 'https://example.com/search?q={query}&lang={lang}', parameters: ['query', 'lang'] }
+    ];
+
+    // Override templateManager.getTemplates for testing
+    templateManager.getTemplates = async () => testTemplates;
+
+    document.getElementById('btn-templates').onclick = () => createTemplateSelector(testTemplates);
+    document.getElementById('btn-editor').onclick = () => showTemplateEditor();
+    document.getElementById('btn-calc').onclick = () => {
+      const input = document.querySelector('.search-input');
+      if (input) {
+        input.value = 'cal 2+2';
+        input.dispatchEvent(new Event('input'));
+      } else {
+        createTemplateSelector(testTemplates);
+        setTimeout(() => {
+          const inp = document.querySelector('.search-input');
+          inp.value = 'cal 2+2';
+          inp.dispatchEvent(new Event('input'));
+        }, 100);
+      }
+    };
+    document.getElementById('btn-dark').onclick = () => {
+      document.documentElement.classList.toggle('dark-mode');
+      // Simulate dark mode for testing
+      if (document.documentElement.classList.contains('dark-mode')) {
+        document.querySelector('meta[name="color-scheme"]')?.remove();
+      }
+    };
+
+    // Also allow keyboard shortcut from test page
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'L') {
+        e.preventDefault();
+        chrome.runtime.onMessage.addListener.mock && chrome.runtime.onMessage.addListener.mock.calls.forEach(c => {
+          if (c[0]) c[0]({ action: 'showTemplateSelector' });
+        });
+      }
+    });
+  </script>
+</body>
+</html>
